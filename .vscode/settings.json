@@ -1,0 +1,7 @@
+{
+    "editor.foldingStrategy": "indentation",
+    "go.toolsEnvVars": {
+        "GO111MODULE": "on"
+    },
+    "cSpell.language": "en,es-ES",
+}

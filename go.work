@@ -1,0 +1,8 @@
+go 1.20
+
+use (
+	./lib/respuesta
+	./lib/rest
+	./lib/validacion
+	./server/seguridad
+)
