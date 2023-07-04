@@ -2,9 +2,7 @@ package mysql
 
 import (
 	"database/sql"
-	"errors"
 	"log"
-	"seguridad/core/domain"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -43,72 +41,4 @@ func NewMysqlRepository(conf MysqlConfig) (*MysqlRepository, error) {
 	return &MysqlRepository{
 		db: db,
 	}, nil
-}
-
-func (repo *MysqlRepository) CreateEmpresa(empresa domain.Empresa) error {
-	return errors.New("NOT IMPLEMENTED")
-}
-
-// Empresa
-func (repo *MysqlRepository) GetEmpresas() (empresas []domain.Empresa, err error) {
-	var query string = `
-		SELECT
-			empresa.id,
-			empresa.logo,
-			empresa.limite_usuarios,
-			empresa.nit,
-			empresa.razon_social,
-			tipo.codigo
-		FROM empresa
-		INNER JOIN tipo_identificacion tipo
-			ON empresa.tipo_identificacion_id = tipo.id
-	`
-	rows, err := repo.db.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	for rows.Next() {
-		empresa := domain.Empresa{}
-		rows.Scan(&empresa.Id, &empresa.Logo, &empresa.LimiteUsuarios, &empresa.Nit,
-			&empresa.RazonSocial, &empresa.Identificacion)
-		empresas = append(empresas, empresa)
-	}
-
-	return empresas, nil
-}
-
-func (repo *MysqlRepository) GetEmpresaById(id uint) (*domain.Empresa, error) {
-	var query string = `
-		SELECT
-			empresa.id,
-			empresa.logo,
-			empresa.limite_usuarios,
-			empresa.nit,
-			empresa.razon_social,
-		FROM empresa
-		WHERE empresa.id = ?
-	`
-	rows := repo.db.QueryRow(query, id)
-	empresa := domain.Empresa{}
-	err := rows.Scan(&empresa.Id, &empresa.Logo, &empresa.LimiteUsuarios, &empresa.Nit,
-		&empresa.RazonSocial)
-	if err == sql.ErrNoRows {
-		return nil, nil
-	} else if err != nil {
-		return nil, err
-	}
-
-	return &empresa, nil
-}
-
-func (repo *MysqlRepository) UpdateEmpresa(empresa domain.Empresa) error {
-	return errors.New("NOT IMPLEMENTED")
-}
-
-func (repo *MysqlRepository) DeleteEmpresa(id uint) error {
-	return errors.New("NOT IMPLEMENTED")
-}
-
-func (repo *MysqlRepository) DeleteServidor(id uint) error {
-	return errors.New("NOT IMPLEMENTED")
 }

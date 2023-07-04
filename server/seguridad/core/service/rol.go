@@ -5,32 +5,27 @@ import (
 	"respuesta"
 	"seguridad/core/domain"
 	"seguridad/core/repository"
-	"validacion"
 )
 
 type RolService struct {
-	repo      repository.IRepositoryRol
-	validator *validacion.Validador
+	repo repository.IRepositoryRol
 }
 
-func NewRolService(repo repository.IRepositoryRol, val *validacion.Validador) *RolService {
+func NewRolService(repo repository.IRepositoryRol) *RolService {
 	return &RolService{
-		repo:      repo,
-		validator: val,
+		repo: repo,
 	}
 }
 
 func (servicio *RolService) CreateRol(rol domain.Rol) *respuesta.Respuesta {
 	//validar datos
-	err := servicio.validator.Verificar("min=6,max=200", rol.Nombre)
+	err := rol.ValidateNombre()
 	if err != nil {
-		err = fmt.Errorf("Nombre: %w", err)
 		return respuesta.NewErrValidation(err)
 	}
 
-	err = servicio.validator.Verificar("min=50,max=2000", rol.Descripcion)
+	err = rol.ValidateDescripcion()
 	if err != nil {
-		err = fmt.Errorf("Descripción: %w", err)
 		return respuesta.NewErrValidation(err)
 	}
 
@@ -57,17 +52,17 @@ func (servicio *RolService) CreateRol(rol domain.Rol) *respuesta.Respuesta {
 
 func (servicio *RolService) UpdateRol(rol domain.Rol) *respuesta.Respuesta {
 	//validar datos
-	err := servicio.validator.Verificar("id", rol.Id)
+	err := rol.ValidateId()
 	if err != nil {
 		return respuesta.NewErrValidation(err)
 	}
 
-	err = servicio.validator.Verificar("min=6,max=200", rol.Nombre)
+	err = rol.ValidateNombre()
 	if err != nil {
 		return respuesta.NewErrValidation(err)
 	}
 
-	err = servicio.validator.Verificar("min=50,max=2000", rol.Descripcion)
+	err = rol.ValidateDescripcion()
 	if err != nil {
 		return respuesta.NewErrValidation(err)
 	}
@@ -103,9 +98,10 @@ func (servicio *RolService) GetRoles() *respuesta.Respuesta {
 	return respuesta.NewNoErr(roles)
 }
 
-func (servicio *RolService) GetRolByRolId(rolId int64) *respuesta.Respuesta {
+func (servicio *RolService) GetRolById(rolId int64) *respuesta.Respuesta {
 	//validar datos
-	err := servicio.validator.Verificar("id", rolId)
+	rol := domain.Rol{Id: rolId}
+	err := rol.ValidateId()
 	if err != nil {
 		return respuesta.NewErrValidation(err)
 	}
@@ -121,7 +117,6 @@ func (servicio *RolService) GetRolByRolId(rolId int64) *respuesta.Respuesta {
 	}
 
 	return respuesta.NewNoErr(permisosRol)
-
 }
 
 // func (servicio *RolService) AddPermiso(rolId, permisoId int64) *respuesta.Respuesta {

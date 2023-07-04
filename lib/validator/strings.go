@@ -1,4 +1,4 @@
-package validacion
+package validator
 
 import (
 	"errors"
@@ -49,16 +49,16 @@ func esIp(dato interface{}, _ string) error {
 	return validarRegEx(localIpRegEx, ip, err)
 }
 
-func validarToken(dato interface{}, _ string) error {
-	token := dato.(string)
-	err := validarLongitud(token)
-	if err != nil {
-		return err
-	}
+// func validarToken(dato interface{}, _ string) error {
+// 	token := dato.(string)
+// 	err := validarLongitud(token)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	err = errors.New(fmt.Sprintf("%s no es un token valido", token))
-	return validarRegEx(jwtRegEx, token, err)
-}
+// 	err = errors.New(fmt.Sprintf("%s no es un token valido", token))
+// 	return validarRegEx(jwtRegEx, token, err)
+// }
 
 func esNumero(dato interface{}, _ string) error {
 	str := dato.(string)

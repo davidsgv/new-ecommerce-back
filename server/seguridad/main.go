@@ -8,8 +8,8 @@ import (
 	"seguridad/driver/rest"
 	"strconv"
 	"time"
-	"validacion"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -54,15 +54,18 @@ func main() {
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
+	// //servicios
+	rolService := service.NewRolService(repo)
+	// //autenticacionServicio := service.NewAutenticacionServicio(repo, ambiente.TokenExpireTime, ambiente.keyTokens, validador)
 
-	validator := validacion.NewValidador()
-	//servicios
-	//autenticacionServicio := service.NewAutenticacionServicio(repo, ambiente.TokenExpireTime, ambiente.keyTokens, validador)
-	rolService := service.NewRolService(repo, validator)
 	//empresaServicio := service.NewEmpresaServicio(repo, ambiente.keyServers, validador)
 	//usuarioServicio := service.NewUsuarioServicio(repo, validador)
 
 	//midleware
+	group.Use(gin.Logger())
+	group.Use(cors.New(cors.Config{
+		AllowAllOrigins: true,
+	}))
 	//group.Use(rest.AuthorizeJWT(autenticacionServicio))
 
 	//handlers

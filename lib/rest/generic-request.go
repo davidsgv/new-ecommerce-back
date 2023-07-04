@@ -56,7 +56,7 @@ func Response(ctx *gin.Context, resSer *respuesta.Respuesta, restData interface{
 	case resSer.Codigo == 10:
 		httpCode = http.StatusInternalServerError
 		mensaje = "Error interno"
-	case resSer.Codigo > 200 && resSer.Codigo < 299:
+	case resSer.Codigo >= 100 && resSer.Codigo < 299:
 		httpCode = http.StatusBadRequest
 		mensaje = resSer.Error.Error()
 	}

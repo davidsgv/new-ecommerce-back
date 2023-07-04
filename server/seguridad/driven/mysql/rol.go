@@ -53,9 +53,9 @@ func (repo *MysqlRepository) UpdateRol(rol domain.Rol) error {
 	return nil
 }
 
-func (repo *MysqlRepository) GetRoles() (*[]domain.PermisosPorRol, error) {
+func (repo *MysqlRepository) GetRoles() ([]domain.Rol, error) {
 	query := `
-		SELECT 
+		SELECT
 			rol.id
 			, rol.nombre
 			, rol.descripcion
@@ -67,9 +67,9 @@ func (repo *MysqlRepository) GetRoles() (*[]domain.PermisosPorRol, error) {
 			, per.modulo
 			, per.recurso
 		FROM rol
-		INNER JOIN permiso_por_rol ppr
+		LEFT JOIN permiso_por_rol ppr
 			ON ppr.rol_id = rol.id
-		INNER JOIN permiso per
+		LEFT JOIN permiso per
 			ON per.id = ppr.permiso_id
 	`
 
@@ -80,61 +80,93 @@ func (repo *MysqlRepository) GetRoles() (*[]domain.PermisosPorRol, error) {
 		return nil, err
 	}
 
-	permisosRoles := []domain.PermisosPorRol{}
+	roles := []domain.Rol{}
 	for rows.Next() {
-		pr := domain.PermisosPorRol{}
+		rol := domain.Rol{}
+		pr := domain.PermisosPorRol{
+			Permiso: domain.Permiso{},
+		}
 
-		rows.Scan(&pr.Id, &pr.Nombre, &pr.Descripcion,
-			&pr.Crear, &pr.Editar, &pr.Eliminar, &pr.Eliminar,
-			pr.Permiso.Id, &pr.Permiso.Modulo, &pr.Permiso.Recurso)
+		rows.Scan(&rol.Id, &rol.Nombre, &rol.Descripcion,
+			&pr.Crear, &pr.Editar, &pr.Eliminar, &pr.Consultar,
+			&pr.Permiso.Id, &pr.Permiso.Modulo, &pr.Permiso.Recurso)
 
-		permisosRoles = append(permisosRoles, pr)
+		roles = joinRols(roles, &rol, pr)
 	}
 
-	return &permisosRoles, nil
+	return roles, nil
 }
 
-func (repo *MysqlRepository) GetRolByRolId(rolId int64) (*[]domain.PermisosPorRol, error) {
-	query := `
-		SELECT 
-			rol.id
-			, rol.nombre
-			, rol.descripcion
-			, ppr.crear
-			, ppr.editar
-			, ppr.eliminar
-			, ppr.consultar
-			, per.id
-			, per.modulo
-			, per.recurso
-		FROM rol
-		INNER JOIN permiso_por_rol ppr
-			ON ppr.rol_id = rol.id
-		INNER JOIN permiso per
-			ON per.id = ppr.permiso_id
-		WHERE rol.id = ?
-	`
-
-	rows, err := repo.db.Query(query, rolId)
-	defer rows.Close()
-
-	if err != nil {
-		return nil, err
+func joinRols(roles []domain.Rol, rol *domain.Rol, pr domain.PermisosPorRol) []domain.Rol {
+	var existeRol bool = false
+	var indiceRol int
+	for i, v := range roles {
+		if v.Id == rol.Id {
+			existeRol = true
+			indiceRol = i
+			break
+		}
 	}
 
-	permisosRoles := []domain.PermisosPorRol{}
-	for rows.Next() {
-		pr := domain.PermisosPorRol{}
-
-		rows.Scan(&pr.Id, &pr.Nombre, &pr.Descripcion,
-			&pr.Crear, &pr.Editar, &pr.Eliminar, &pr.Eliminar,
-			pr.Permiso.Id, &pr.Permiso.Modulo, &pr.Permiso.Recurso)
-
-		permisosRoles = append(permisosRoles, pr)
+	if existeRol {
+		rol = &roles[indiceRol]
 	}
 
-	return &permisosRoles, nil
+	if pr.Permiso.Id > 0 {
+		rol.Permisos = append(rol.Permisos, pr)
+	}
+
+	if !existeRol {
+		roles = append(roles, *rol)
+	}
+	return roles
 }
+
+func (repo *MysqlRepository) GetRolByRolId(rolId int64) (*domain.Rol, error) {
+	return nil, errors.New("Not implemented yet")
+}
+
+// func (repo *MysqlRepository) GetRolByRolId(rolId int64) (*[]domain.PermisosPorRol, error) {
+// 	query := `
+// 		SELECT
+// 			rol.id
+// 			, rol.nombre
+// 			, rol.descripcion
+// 			, ppr.crear
+// 			, ppr.editar
+// 			, ppr.eliminar
+// 			, ppr.consultar
+// 			, per.id
+// 			, per.modulo
+// 			, per.recurso
+// 		FROM rol
+// 		INNER JOIN permiso_por_rol ppr
+// 			ON ppr.rol_id = rol.id
+// 		INNER JOIN permiso per
+// 			ON per.id = ppr.permiso_id
+// 		WHERE rol.id = ?
+// 	`
+
+// 	rows, err := repo.db.Query(query, rolId)
+// 	defer rows.Close()
+
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	permisosRoles := []domain.PermisosPorRol{}
+// 	for rows.Next() {
+// 		pr := domain.PermisosPorRol{}
+
+// 		rows.Scan(&pr.Id, &pr.Nombre, &pr.Descripcion,
+// 			&pr.Crear, &pr.Editar, &pr.Eliminar, &pr.Eliminar,
+// 			pr.Permiso.Id, &pr.Permiso.Modulo, &pr.Permiso.Recurso)
+
+// 		permisosRoles = append(permisosRoles, pr)
+// 	}
+
+// 	return &permisosRoles, nil
+// }
 
 func (repo *MysqlRepository) DeleteRol(rolId int64) error {
 	return errors.New("Not implemented yet")
@@ -146,29 +178,55 @@ func (repo *MysqlRepository) AddPermiso(rolId, permisoId int64) error {
 func (repo *MysqlRepository) RemovePermiso(rolId, permisoId int64) error {
 	return errors.New("Not implemented yet")
 }
+
 func (repo *MysqlRepository) ExistRol(name string) (bool, error) {
-	return false, errors.New("Not implemented yet")
-}
-func (repo *MysqlRepository) GetPermisos() (*[]domain.Permiso, error) {
 	query := `
-		SELECT id, modulo, recurso
-		FROM permiso
+		SELECT count(1)
+		FROM rol
+		WHERE rol.nombre = ?
 	`
 
-	rows, err := repo.db.Query(query)
-	defer rows.Close()
+	rows := repo.db.QueryRow(query, name)
+	if rows.Err() != nil {
+		return false, rows.Err()
+	}
+
+	var resultRows int
+	err := rows.Scan(&resultRows)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
-	permisos := []domain.Permiso{}
-	for rows.Next() {
-		permiso := domain.Permiso{}
-
-		rows.Scan(&permiso.Id, &permiso.Modulo, &permiso.Recurso)
-
-		permisos = append(permisos, permiso)
+	if resultRows > 0 {
+		return true, nil
 	}
-
-	return &permisos, nil
+	return false, nil
 }
+
+func (repo *MysqlRepository) GetPermisos() ([]domain.Permiso, error) {
+	return nil, errors.New("Not implemented yet")
+}
+
+// func (repo *MysqlRepository) GetPermisos() (*[]domain.Permiso, error) {
+// 	query := `
+// 		SELECT id, modulo, recurso
+// 		FROM permiso
+// 	`
+
+// 	rows, err := repo.db.Query(query)
+// 	defer rows.Close()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	permisos := []domain.Permiso{}
+// 	for rows.Next() {
+// 		permiso := domain.Permiso{}
+
+// 		rows.Scan(&permiso.Id, &permiso.Modulo, &permiso.Recurso)
+
+// 		permisos = append(permisos, permiso)
+// 	}
+
+// 	return &permisos, nil
+// }

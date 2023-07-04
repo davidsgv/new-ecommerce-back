@@ -1,21 +1,9 @@
 USE seguridad;
 
-INSERT INTO tipo_identificacion (nombre, codigo) VALUES 
-('Cédula de ciudadanía', 'CC'),
-('Número de identificación tributaria', 'NIT');
-
-INSERT INTO empresa (limite_usuario, razon_social, identificacion, tipo_identificacion_id) VALUES
-(10, 'Automatsoft', '1112234567', 2);
-
-INSERT INTO servidor (dominio, direccion_ip, nombre_bd, usuario, password, empresa_id) VALUES
-('127.0.0.1:8081', 'a', 'a', 'a', 'a', 1);
-
 INSERT INTO rol (nombre, descripcion) VALUES
 ('SuperAdmin', 'Administrador con control total sobre el sistema');
 
 INSERT INTO permiso (modulo, recurso) VALUES
-('seguridad', 'empresas'),
-('seguridad', 'servidores'),
 ('seguridad', 'usuarios'),
 ('seguridad', 'conexiones'),
 ('seguridad', 'bloqueos'),
@@ -37,6 +25,3 @@ INSERT INTO usuario (password, correo, telefono, celular) VALUES
 
 INSERT INTO usuario_por_rol (usuario_id, rol_id) VALUES
 (1,1);
-
-INSERT INTO usuario_por_empresa (usuario_id, empresa_id, activo) VALUES
-(1, 1, 1)

@@ -1,5 +1,6 @@
 package respuesta
 
+// Representa un error ocurrido en un servicio
 type Codigo int
 
 const (

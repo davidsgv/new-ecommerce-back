@@ -37,7 +37,7 @@ CREATE TABLE rol(
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(200) NOT NULL,
     descripcion VARCHAR(2000)  NOT NULL,
-    CONSTRAINT unique_rol_nombre UNIQUE (correo),
+    CONSTRAINT unique_rol_nombre UNIQUE (nombre)
 );
 
 CREATE TABLE usuario_por_rol(
