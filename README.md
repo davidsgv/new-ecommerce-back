@@ -1,3 +1,5 @@
+Aunque este proyecto este en pausa, refleja lo que he aprendido de go, que buenas practicas manejo y como organizo un proyecto.
+
 # new-ecommerce-back
 En este proyecto, estoy aplicando mis conocimientos para desarrollar una aplicación de microservicios. Mi enfoque principal es implementar una arquitectura hexagonal en cada uno de los servicios, utilizando REST o Protobuf como protocolos de comunicación (con el cliente, no entre los servicios).
 
